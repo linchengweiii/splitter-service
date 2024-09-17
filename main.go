@@ -1,13 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/linchengweiii/splitter/pkg/expense"
 	"github.com/linchengweiii/splitter/pkg/group"
+	"github.com/linchengweiii/splitter/pkg/router"
 )
 
 func main() {
@@ -21,62 +21,20 @@ func main() {
 	expenseRepository := expense.NewInMemoryRepository()
 	expenseService := expense.NewService(expenseRepository)
 
+	groupRouter := router.NewGroupRouter(defaultGroup.Id, groupService)
+	expenseRouter := router.NewExpenseRouter(defaultGroup.Id, groupService, expenseService)
+
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		g, err := json.Marshal(defaultGroup)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+	router.HandleFunc(
+		"/",
+		groupRouter.GetGroup,
+	).Methods(http.MethodGet)
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(g)
-	}).Methods(http.MethodGet)
-
-	router.HandleFunc("/expense", func(w http.ResponseWriter, r *http.Request) {
-		var expenseInput struct {
-			Description string             `json:"description"`
-			Paid		map[string]float64 `json:"paid"`
-			Owed		map[string]float64 `json:"owed"`
-		}
-		err := json.NewDecoder(r.Body).Decode(&expenseInput)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		expenseOutput, err := expenseService.Create(
-			expenseInput.Description,
-			expenseInput.Paid,
-			expenseInput.Owed,
-		)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		expense := group.Expense{
-			Id: expenseOutput.Id,
-			Description: expenseOutput.Description,
-			Paid: expenseOutput.Paid,
-			Owed: expenseOutput.Owed,
-		}
-
-		defaultGroup.Expenses = append(defaultGroup.Expenses, expense)
-		groupService.Update(*defaultGroup)
-
-		e, err := json.Marshal(expenseOutput)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		w.Write(e)
-	}).Methods(http.MethodPost)
+	router.HandleFunc(
+		"/expense",
+		expenseRouter.PostExpense,
+	).Methods(http.MethodPost)
 
 	err = http.ListenAndServe(":8080", router)
 	if err != nil {

@@ -6,6 +6,7 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/linchengweiii/splitter/pkg/expense v0.0.0
 	github.com/linchengweiii/splitter/pkg/group v0.0.0
+	github.com/linchengweiii/splitter/pkg/router v0.0.0
 )
 
 require github.com/google/uuid v1.6.0 // indirect
@@ -13,3 +14,5 @@ require github.com/google/uuid v1.6.0 // indirect
 replace github.com/linchengweiii/splitter/pkg/expense => ./pkg/expense
 
 replace github.com/linchengweiii/splitter/pkg/group => ./pkg/group
+
+replace github.com/linchengweiii/splitter/pkg/router => ./pkg/router
