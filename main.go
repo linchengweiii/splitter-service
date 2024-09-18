@@ -21,8 +21,8 @@ func main() {
 	expenseRepository := expense.NewInMemoryRepository()
 	expenseService := expense.NewService(expenseRepository)
 
-	groupRouter := router.NewGroupRouter(defaultGroup.Id, groupService)
-	expenseRouter := router.NewExpenseRouter(defaultGroup.Id, groupService, expenseService)
+	groupRouter := router.NewGroupRouter(defaultGroup.Id, groupService, expenseService)
+	expenseRouter := router.NewExpenseRouter(expenseService)
 
 	router := mux.NewRouter()
 
@@ -33,23 +33,23 @@ func main() {
 
 	router.HandleFunc(
 		"/expense",
-		expenseRouter.PostExpense,
+		groupRouter.PostExpense,
 	).Methods(http.MethodPost)
+
+	router.HandleFunc(
+		"/expense/{expenseId}",
+		groupRouter.PatchExpense,
+	).Methods(http.MethodPatch)
+
+	router.HandleFunc(
+		"/expense/{expenseId}",
+		groupRouter.DeleteExpense,
+	).Methods(http.MethodDelete)
 
 	router.HandleFunc(
 		"/expense/{expenseId}",
 		expenseRouter.GetExpense,
 	).Methods(http.MethodGet)
-
-	router.HandleFunc(
-		"/expense/{expenseId}",
-		expenseRouter.PatchExpense,
-	).Methods(http.MethodPatch)
-
-	router.HandleFunc(
-		"/expense/{expenseId}",
-		expenseRouter.DeleteExpense,
-	).Methods(http.MethodDelete)
 
 	err = http.ListenAndServe(":8080", router)
 	if err != nil {
