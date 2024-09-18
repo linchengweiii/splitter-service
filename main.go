@@ -27,22 +27,22 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc(
-		"/",
+		"/group",
 		groupRouter.GetGroup,
 	).Methods(http.MethodGet)
 
 	router.HandleFunc(
-		"/expense",
+		"/group/expense",
 		groupRouter.PostExpense,
 	).Methods(http.MethodPost)
 
 	router.HandleFunc(
-		"/expense/{expenseId}",
+		"/group/expense/{expenseId}",
 		groupRouter.PatchExpense,
 	).Methods(http.MethodPatch)
 
 	router.HandleFunc(
-		"/expense/{expenseId}",
+		"/group/expense/{expenseId}",
 		groupRouter.DeleteExpense,
 	).Methods(http.MethodDelete)
 
