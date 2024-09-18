@@ -18,31 +18,40 @@ func NewService(repository Repository) *Service {
 }
 
 func (s *Service) Create(
-	description string,
-	paid map[string]float64,
-	owed map[string]float64,
-) (*IdentifiableExpense, error) {
+	expense Expense,
+) (IdentifiableExpense, error) {
 	id := uuid.New()
-	expense := &IdentifiableExpense{
+	expenseWithId := &IdentifiableExpense{
 		Id:   id.String(),
-		Description: description,
-		Paid: paid,
-		Owed: owed,
+		Description: expense.Description,
+		Paid: expense.Paid,
+		Owed: expense.Owed,
 	}
-	err := s.repository.Create(*expense)
+	err := s.repository.Create(*expenseWithId)
 	if err != nil {
-		return nil, err
+		return IdentifiableExpense{}, err
 	}
 
-	return expense, nil
+	return *expenseWithId, nil
 }
 
 func (s *Service) Read(id string) (IdentifiableExpense, error) {
 	return s.repository.Read(id)
 }
 
-func (s *Service) Update(expense IdentifiableExpense) error {
-	return s.repository.Update(expense)
+func (s *Service) Update(id string, expense Expense) (IdentifiableExpense, error) {
+	expenseWithId := IdentifiableExpense{
+		Id: id,
+		Description: expense.Description,
+		Paid: expense.Paid,
+		Owed: expense.Owed,
+	}
+	err := s.repository.Update(expenseWithId)
+	if err != nil {
+		return IdentifiableExpense{}, err
+	}
+	return expenseWithId, nil
+
 }
 
 func (s *Service) Delete(id string) error {

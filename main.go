@@ -36,6 +36,21 @@ func main() {
 		expenseRouter.PostExpense,
 	).Methods(http.MethodPost)
 
+	router.HandleFunc(
+		"/expense/{expenseId}",
+		expenseRouter.GetExpense,
+	).Methods(http.MethodGet)
+
+	router.HandleFunc(
+		"/expense/{expenseId}",
+		expenseRouter.PatchExpense,
+	).Methods(http.MethodPatch)
+
+	router.HandleFunc(
+		"/expense/{expenseId}",
+		expenseRouter.DeleteExpense,
+	).Methods(http.MethodDelete)
+
 	err = http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)

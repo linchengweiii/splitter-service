@@ -19,22 +19,14 @@ type ExpenseRouterImpl struct {
 }
 
 func(router *ExpenseRouterImpl) PostExpense(w http.ResponseWriter, r *http.Request) {
-    var expenseInput struct {
-        Description string             `json:"description"`
-        Paid	    map[string]float64 `json:"paid"`
-        Owed	    map[string]float64 `json:"owed"`
-    }
+    var expenseInput expense.Expense
     err := json.NewDecoder(r.Body).Decode(&expenseInput)
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return;
     }
 
-    expenseOutput, err := router.expenseService.Create(
-        expenseInput.Description,
-        expenseInput.Paid,
-        expenseInput.Owed,
-        )
+    expenseOutput, err := router.expenseService.Create(expenseInput)
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return

@@ -1,5 +1,7 @@
 package expense
 
+import "errors"
+
 type InMemoryRepository struct {
     expenses []IdentifiableExpense
 }
@@ -11,6 +13,11 @@ func NewInMemoryRepository() *InMemoryRepository {
 }
 
 func (r *InMemoryRepository) Create(expense IdentifiableExpense) error {
+    for _, e := range r.expenses {
+        if e.Id == expense.Id {
+            return errors.New("Expense already exists")
+        }
+    }
     r.expenses = append(r.expenses, expense)
     return nil
 }
@@ -21,7 +28,7 @@ func (r *InMemoryRepository) Read(id string) (IdentifiableExpense, error) {
             return expense, nil
         }
     }
-    return IdentifiableExpense{}, nil
+    return IdentifiableExpense{}, errors.New("Expense not found")
 }
 
 func (r *InMemoryRepository) Update(expense IdentifiableExpense) error {
@@ -31,7 +38,7 @@ func (r *InMemoryRepository) Update(expense IdentifiableExpense) error {
             return nil
         }
     }
-    return nil
+    return errors.New("Expense not found")
 }
 
 func (r *InMemoryRepository) Delete(id string) error {
@@ -41,5 +48,5 @@ func (r *InMemoryRepository) Delete(id string) error {
             return nil
         }
     }
-    return nil
+    return errors.New("Expense not found")
 }
